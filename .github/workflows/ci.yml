@@ -45,12 +45,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Validate Kubernetes manifests
+      - name: Validate Kubernetes manifests syntax
         run: |
-          # Download kubectl
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s \
-          https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-          # Validate Kubernetes manifests (dry run without server validation)
-          kubectl apply --dry-run=client --validate=false -f k8s/
+          # Install kubeval for schema validation
+          wget https://github.com/instrumenta/kubeval/releases/latest/download/\
+          kubeval-linux-amd64.tar.gz
+          tar xf kubeval-linux-amd64.tar.gz
+          sudo cp kubeval /usr/local/bin
+          # Validate Kubernetes manifests using kubeval
+          kubeval --strict k8s/*.yml

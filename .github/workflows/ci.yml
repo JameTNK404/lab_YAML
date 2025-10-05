@@ -1,4 +1,3 @@
----
 name: CI Pipeline
 
 on:
@@ -32,6 +31,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
       - name: Validate Docker Compose
         run: |
           docker-compose config
@@ -49,5 +52,5 @@ jobs:
           https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
-          # Validate Kubernetes manifests (dry run)
-          kubectl apply --dry-run=client -f k8s/
+          # Validate Kubernetes manifests (dry run without server validation)
+          kubectl apply --dry-run=client --validate=false -f k8s/

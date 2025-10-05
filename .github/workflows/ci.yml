@@ -1,0 +1,53 @@
+---
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  checkout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+  lint-yaml:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Install yamllint
+        run: sudo pip install yamllint
+      - name: Lint all YAML files
+        run: |
+          yamllint .
+
+  validate-docker-compose:
+    runs-on: ubuntu-latest
+    needs: lint-yaml
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Validate Docker Compose
+        run: |
+          docker-compose config
+
+  validate-kubernetes:
+    runs-on: ubuntu-latest
+    needs: lint-yaml
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Validate Kubernetes manifests
+        run: |
+          # Download kubectl
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s \
+          https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          # Validate Kubernetes manifests (dry run)
+          kubectl apply --dry-run=client -f k8s/

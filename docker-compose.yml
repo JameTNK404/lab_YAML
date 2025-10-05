@@ -1,0 +1,21 @@
+---
+version: '3.8'
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web-data:/usr/share/nginx/html
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+      MYSQL_DATABASE: myapp
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:
